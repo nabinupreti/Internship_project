@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  COMPANY
+  ADMIN
+}
+
+enum JobType {
+  JOB
+  INTERNSHIP
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SHORTLISTED
+  REJECTED
+}
+
+model User {
+  id                         String          @id @default(cuid())
+  name                       String
+  email                      String          @unique
+  passwordHash               String
+  role                       Role
+  isApproved                 Boolean         @default(true)
+  emailVerified              Boolean         @default(false)
+  emailVerificationCodeHash  String?
+  emailVerificationExpiresAt DateTime?
+  createdAt                  DateTime        @default(now())
+  studentProfile             StudentProfile?
+  companyProfile             CompanyProfile?
+}
+
+model StudentProfile {
+  id        String         @id @default(cuid())
+  userId    String         @unique
+  skills    String
+  bio       String
+  resumeUrl String?
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+}
+
+model CompanyProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  companyName String
+  website     String?
+  description String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs        Job[]
+}
+
+model Job {
+  id          String      @id @default(cuid())
+  companyId   String
+  title       String
+  type        JobType
+  location    String
+  salaryRange String?
+  description String
+  isApproved  Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  company     CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  applications Application[]
+}
+
+model Application {
+  id          String            @id @default(cuid())
+  jobId       String
+  studentId   String
+  coverLetter String?
+  status      ApplicationStatus @default(APPLIED)
+  createdAt   DateTime          @default(now())
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  student     StudentProfile    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, studentId])
+}
