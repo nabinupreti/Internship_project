@@ -61,13 +61,23 @@ services:
 
   varnish:
     image: varnish:7.4-alpine
-    depends_on:
-      - nginx
+    depends_on: [nginx]
     ports:
-      - "80:80"
+      - "8081:80"
     volumes:
       - ./varnish/default.vcl:/etc/varnish/default.vcl:ro
-    command: ["-F", "-f", "/etc/varnish/default.vcl", "-a", ":80", "-s", "malloc,256m"]
+    command: ["-F","-f","/etc/varnish/default.vcl","-a",":80","-s","malloc,256m"]
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on: [varnish]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
 
 volumes:
   pgdata:
