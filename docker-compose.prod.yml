@@ -76,10 +76,10 @@ services:
     depends_on:
       - nginx
     ports:
-      - "8081:80"
+      - "8081:6081"
     volumes:
       - ./varnish/default.vcl:/etc/varnish/default.vcl:ro
-    command: ["-F","-f","/etc/varnish/default.vcl","-a",":80","-s","malloc,256m"]
+    command: ["-F","-f","/etc/varnish/default.vcl","-a",":6081","-s","malloc,256m"]
     networks:
       - app_network
 

@@ -2,3 +2,5 @@
 backend/.env
 frontend/.env
 backups/
+.DS_Store
+~.DS_Store

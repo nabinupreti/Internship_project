@@ -1,0 +1,4 @@
+internship.nabinupreti.com.np {
+  encode gzip
+  reverse_proxy varnish:6081
+}
